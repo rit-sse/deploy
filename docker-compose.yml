@@ -112,6 +112,29 @@ services:
     networks:
       - traefik
 
+  go:
+    image: ritsse/go:dev
+    container_name: go
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.go.rule=(Host(`rit-sse.dev`) && PathPrefix(`/go/`))"
+      - "traefik.http.routers.go.entrypoints=https"
+      - "traefik.http.routers.go.service=go"
+      - "traefik.http.routers.go.tls=true"
+      - "traefik.http.routers.go.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.go.middlewares=compress,secure"
+      - "traefik.http.routers.go-insecure.rule=(Host(`rit-sse.dev`) && PathPrefix(`/go/`))"
+      - "traefik.http.routers.go-insecure.entrypoints=http"
+      - "traefik.http.routers.go-insecure.middlewares=tohttps"
+      - "traefik.http.services.go.loadbalancer.server.port=8000"
+    environment:
+      - 'API=http://node-api:3000'
+    depends_on:
+      - traefik
+    networks:
+      - traefik
+
   postgres:
     image: postgres:13.2-alpine
     container_name: postgres

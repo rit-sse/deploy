@@ -64,6 +64,28 @@ services:
         source: traefik
         target: /traefik
 
+  onerepo:
+    image: ritsse/onerepo:latest
+    container_name: onerepo
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.onerepo.rule=Host(`rit-sse.dev`)"
+      - "traefik.http.routers.onerepo.entrypoints=https"
+      - "traefik.http.routers.onerepo.service=onerepo"
+      - "traefik.http.routers.onerepo.tls=true"
+      - "traefik.http.routers.onerepo.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.onerepo.middlewares=compress,secure"
+      - "traefik.http.routers.onerepo-insecure.rule=Host(`rit-sse.dev`)"
+      - "traefik.http.routers.onerepo-insecure.entrypoints=http"
+      - "traefik.http.routers.onerepo-insecure.service=registry"
+      - "traefik.http.routers.onerepo-insecure.middlewares=tohttps"
+      - "traefik.http.services.onerepo.loadbalancer.server.port=80"
+    depends_on:
+      - traefik
+    networks:
+      - traefik
+
 networks:
   traefik:
     name: traefik

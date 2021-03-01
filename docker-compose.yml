@@ -1,0 +1,73 @@
+version: "3.3"
+
+services:
+  traefik:
+    image: traefik:2.4.5
+    container_name: traefik
+    restart: always
+    command:
+      - "--providers.docker=true"
+      - "--providers.file.directory=/traefik/conf"
+      - "--providers.file.watch=true"
+      - "--api"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http"
+      - "--certificatesresolvers.letsencrypt.acme.email=tech@sse.rit.edu"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/traefik/acme.json"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/traefik/access.log"
+      - "--accesslog.format=json"
+      - "--accesslog.fields.defaultmode=keep"
+      - "--accesslog.fields.headers.defaultmode=keep"
+      - "--log.level=INFO"
+      - "--log.filePath=/traefik/traefik.log"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.compress.compress=true"
+      - "traefik.http.middlewares.secure.headers.browserxssfilter=true"
+      - "traefik.http.middlewares.secure.headers.contenttypenosniff=true"
+      - "traefik.http.middlewares.secure.headers.featurepolicy=geolocation 'none'; midi 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; fullscreen 'self'; payment 'none'"
+      - "traefik.http.middlewares.secure.headers.framedeny=true"
+      - "traefik.http.middlewares.secure.headers.customframeoptionsvalue=SAMEORIGIN"
+      - "traefik.http.middlewares.secure.headers.sslredirect=true"
+      - "traefik.http.middlewares.secure.headers.referrerpolicy=strict-origin"
+      - "traefik.http.middlewares.secure.headers.customresponseheaders.Server=GNU Netcat 0.7.1"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,OPTIONS,PUT"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.tohttps.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.adminauth.basicauth.usersfile=/traefik/conf/admin.auth"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.rit-sse.dev`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=https"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.middlewares=adminauth,compress,secure"
+      - "traefik.http.services.traefik.loadbalancer.passhostheader=true"
+    ports:
+      - "80:80"
+      - "2222:2222"
+      - "443:443"
+    networks:
+      - traefik
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+      - type: bind
+        source: ./traefik
+        target: /traefik/conf
+        read_only: true
+      - type: volume
+        source: traefik
+        target: /traefik
+
+networks:
+  traefik:
+    name: traefik
+    driver: bridge
+
+volumes:
+  traefik:

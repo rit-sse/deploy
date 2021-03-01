@@ -1,0 +1,5 @@
+[tls.options]
+  [tls.options.default]
+    minVersion = "VersionTLS12"
+    cipherSuites = ["TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"]
+    curvePreferences = ["CurveP521", "CurveP384"]

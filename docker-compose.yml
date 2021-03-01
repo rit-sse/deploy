@@ -85,6 +85,33 @@ services:
     networks:
       - traefik
 
+  node-api:
+    image: ritsse/node-api:latest
+    container_name: node-api
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.node-api.rule=(Host(`rit-sse.dev`) && PathPrefix(`/api/v2`))"
+      - "traefik.http.routers.node-api.entrypoints=https"
+      - "traefik.http.routers.node-api.service=node-api"
+      - "traefik.http.routers.node-api.tls=true"
+      - "traefik.http.routers.node-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.node-api.middlewares=compress,secure"
+      - "traefik.http.routers.node-api-insecure.rule=(Host(`rit-sse.dev`) && PathPrefix(`/api/v2`))"
+      - "traefik.http.routers.node-api-insecure.entrypoints=http"
+      - "traefik.http.routers.node-api-insecure.middlewares=tohttps"
+      - "traefik.http.services.node-api.loadbalancer.server.port=3000"
+    environment:
+      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
+      - "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}"
+      - "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}"
+      - "NODE_ENV=production"
+      - "DB_HOST_OVERRIDE=postgres"
+    depends_on:
+      - traefik
+    networks:
+      - traefik
+
   postgres:
     image: postgres:13.2-alpine
     container_name: postgres

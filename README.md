@@ -7,7 +7,7 @@ Traefik is a reverse proxy that handles SSL and routing across Docker containers
 ## Environment Variables
 Environment variables are discovered from a `.env` file. A sample `.env` file is provided below.
 ```
-BASE_DOMAIN
+BASE_DOMAIN=
 POSTGRES_PASSWORD=
 NODE_API_GOOGLE_CLIENT_ID=
 NODE_API_GOOGLE_CLIENT_SECRET=

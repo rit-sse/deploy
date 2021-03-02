@@ -47,7 +47,6 @@ services:
       - "traefik.http.services.traefik.loadbalancer.passhostheader=true"
     ports:
       - "80:80"
-      - "2222:2222"
       - "443:443"
     networks:
       - traefik

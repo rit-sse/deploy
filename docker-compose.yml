@@ -138,6 +138,32 @@ services:
     networks:
       - traefik
 
+  courseplanner:
+    image: ritsse/courseplanner:latest
+    container_name: courseplanner
+    restart: unless-stopped
+    environment:
+      - "JWT_SECRET=${COURSEPLANNER_JWT_SECRET}"
+      - "GOOGLE_CLIENT_SECRET=${COURSEPLANNER_GOOGLE_CLIENT_SECRET}"
+      - "DB_USER=${COURSEPLANNER_DB_USER}"
+      - "DB_PASS=${COURSEPLANNER_DB_PASS}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.courseplanner.rule=Host(`courses.rit-sse.dev`)"
+      - "traefik.http.routers.courseplanner.entrypoints=https"
+      - "traefik.http.routers.courseplanner.service=courseplanner"
+      - "traefik.http.routers.courseplanner.tls=true"
+      - "traefik.http.routers.courseplanner.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.courseplanner.middlewares=compress,secure"
+      - "traefik.http.routers.courseplanner-insecure.rule=Host(`courses.rit-sse.dev`)"
+      - "traefik.http.routers.courseplanner-insecure.entrypoints=http"
+      - "traefik.http.routers.courseplanner-insecure.middlewares=tohttps"
+      - "traefik.http.services.courseplanner.loadbalancer.server.port=8080"
+    depends_on:
+      - traefik
+    networks:
+      - traefik
+
   postgres:
     image: postgres:13.2-alpine
     container_name: postgres

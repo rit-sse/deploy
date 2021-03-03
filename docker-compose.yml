@@ -63,6 +63,22 @@ services:
         source: traefik
         target: /traefik
 
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    command:
+     - "--http-api-update"
+    environment:
+      - "WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN}"
+    labels:
+      - "traefik.enable=false"
+      - "com.centurylinklabs.watchtower.enable=false"
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:ro
+
   onerepo:
     image: ritsse/onerepo:latest
     container_name: onerepo
@@ -171,6 +187,7 @@ services:
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
     labels:
       - "traefik.enable=false"
+      - "com.centurylinklabs.watchtower.enable=false"
     networks:
       - traefik
     volumes:

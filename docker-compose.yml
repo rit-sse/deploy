@@ -153,6 +153,28 @@ services:
     networks:
       - traefik
 
+  quotes:
+    image: docker.galenguyer.com/rit-sse/quotes:latest
+    container_name: quotes
+    restart: unless-stopped
+    environment:
+      - "SQLALCHEMY_DATABASE_URI=postgresql://postgres:${POSTGRES_PASSWORD}@postgres/postgres"
+      - "SERVER_NAME=quotes.rit-sse.dev"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.quotes.rule=Host(`quotes.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.quotes.entrypoints=https"
+      - "traefik.http.routers.quotes.service=quotes"
+      - "traefik.http.routers.quotes.tls=true"
+      - "traefik.http.routers.quotes.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.quotes.middlewares=compress,secure"
+      - "traefik.http.routers.quotes-insecure.rule=Host(`quotes.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.quotes-insecure.entrypoints=http"
+      - "traefik.http.routers.quotes-insecure.middlewares=tohttps"
+      - "traefik.http.services.quotes.loadbalancer.server.port=5000"
+    networks:
+      - traefik
+
   postgres:
     image: postgres:13.2-alpine
     container_name: postgres

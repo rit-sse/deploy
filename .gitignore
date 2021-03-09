@@ -1,3 +1,5 @@
 # Configuration file
 .env
 
+# Postgres backup folder
+backups/

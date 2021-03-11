@@ -4,6 +4,9 @@ Deploy Configuration for the SSE Website
 ## Traefik
 Traefik is a reverse proxy that handles SSL and routing across Docker containers. Documentation for Traefik can be found [here](https://doc.traefik.io/traefik/).
 
+### HTTP Basic Authentication
+Traefik uses htpasswd files for basic authentication. The `htpasswd` utility is provided by the package `apache2-utils` on Debian-based systems. To add or modify an entry, use `htpasswd -c /path/to/file username`.
+
 ## Watchtower
 [Watchtower](https://github.com/containrrr/watchtower/) is used to fetch new versions of a container when CI updates them. 
 

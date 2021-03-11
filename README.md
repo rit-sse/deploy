@@ -33,6 +33,11 @@ Once the environment variable file is filled out, the stack is ready to deploy.
 - `docker-compose up -d` - Pull any missing docker images and create all containers. Run this for initial start-up as well as any time the configuration changes to apply the configuration.
 - `docker-compose pull` - Update any containers with newer images available. This will not restart the containers, you will have to run `docker-compose up -d` for that.
 
+### Debugging Commands
+- `docker-compose logs` with an optional `container-name` - Get the logs from all running containers or a specific container if a name is specified.
+- `docker ps` - Get a list of all running containers.
+- `docker exec -it <container-name> <command>` - Execute a command in a given container. Useful commands are `bash` or `ash` to get a shell within the container. Use `bash` for Debian/Ubuntu based images and `ash` for Alpine based images.
+
 ### Database Backup and Restore
 To back up the database, run `docker exec -it postgres pg_dump -U postgres > dump_file.sql`
 

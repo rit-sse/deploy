@@ -42,3 +42,17 @@ Once the environment variable file is filled out, the stack is ready to deploy.
 To back up the database, run `docker exec -it postgres pg_dump -U postgres > dump_file.sql`
 
 To restore the database, run `cat dump_file.sql | docker exec -i postgres psql -U postgres`
+
+## Reference Links
+- [Install Docker](https://docs.docker.com/engine/install/)
+- [Install docker-compose](https://docs.docker.com/compose/install/)
+- [Dockerfile best practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)
+- [Docker development best practices](https://docs.docker.com/develop/dev-best-practices/)
+- [Docker CI/CD best practices](https://docs.docker.com/ci-cd/best-practices/)
+- [Complete Docker reference](https://docs.docker.com/reference/)
+    - [Dockerfile reference](https://docs.docker.com/engine/reference/builder/)
+    - [Docker CLI reference](https://docs.docker.com/engine/reference/commandline/cli/)
+    - [docker-compose file reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)
+    - [docker-compose CLI reference](https://docs.docker.com/compose/reference/overview/)
+- [traefik documentation](https://doc.traefik.io/traefik/)
+- [watchtower documentation](https://github.com/containrrr/watchtower/tree/main/docs)

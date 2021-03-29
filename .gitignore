@@ -1,5 +1,7 @@
 # Configuration file
 .env
+traefik/*.auth
 
 # Postgres backup folder
 backups/
+

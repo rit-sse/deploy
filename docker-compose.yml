@@ -64,7 +64,7 @@ services:
         target: /traefik
 
   watchtower:
-    image: containrrr/watchtower:latest
+    image: containrrr/watchtower:1.2.1
     container_name: watchtower
     command:
      - "--http-api-update"

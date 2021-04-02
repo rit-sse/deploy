@@ -10,7 +10,7 @@ Traefik uses htpasswd files for basic authentication. The `htpasswd` utility is 
 ## Watchtower
 [Watchtower](https://github.com/containrrr/watchtower/) is used to fetch new versions of a container when CI updates them. 
 
-To run updates, run `curl -H "Authorization: Bearer <WATCHTOWER_HTTP_API_TOKEN>" watchtower.<BASE_DOMAIN>/v1/update`, substituting `<WATCHTOWER_HTTP_API_TOKEN>` and `<BASE_DOMAIN>` with the appropriate values from the `.env` file.
+To run updates, run `curl -sL -H "Authorization: Bearer <WATCHTOWER_HTTP_API_TOKEN>" <BASE_DOMAIN>/watchtower/v1/update`, substituting `<WATCHTOWER_HTTP_API_TOKEN>` and `<BASE_DOMAIN>` with the appropriate values from the `.env` file.
 
 The documentation on [containrrr.dev/watchtower/](https://containrrr.dev/watchtower/) is out of date. Make sure you refer to the docs folder in the GitHub repository or the help command (accessible with `docker run -it --rm containrrr/watchtower watchtower -h`) for the latest documentation.
 

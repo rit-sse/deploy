@@ -18,6 +18,11 @@ The documentation on [containrrr.dev/watchtower/](https://containrrr.dev/watchto
 
 To generate a strong `WATCHTOWER_HTTP_API_TOKEN`, run `openssl rand -hex 16`.
 
+## pubwebs
+[pubwebs](https://github.com/galenguyer/pubwebs) provides web hosting for each user account. It mounts the `/home` folder as a read-only filesystem so in nearly impossible event a static webserver is compromised, no data can be written to the host system. There is no support for PHP or any type of server-side scripting. All pages must be static files.
+
+User content is available at `https://<BASE_DOMAIN>/~<USERNAME>/`. Content is served from the user's `public_html` folder. Should an `index.html` file be available, it will be provided as the folder index. Otherwise, a listing of all files in the directory will be shown. Currently there is no way to disable this but that will likely change in the future.
+
 ## Environment Variables
 Environment variables are discovered from a `.env` file. A sample `.env` file is provided below.
 ```

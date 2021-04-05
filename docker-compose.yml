@@ -236,8 +236,8 @@ services:
       - "traefik.http.services.node-api-dev.loadbalancer.server.port=3000"
     environment:
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
-      - "GOOGLE_CLIENT_ID=${NODE_API_GOOGLE_CLIENT_ID}"
-      - "GOOGLE_CLIENT_SECRET=${NODE_API_GOOGLE_CLIENT_SECRET}"
+      - "GOOGLE_CLIENT_ID=${DEV_NODE_API_GOOGLE_CLIENT_ID}"
+      - "GOOGLE_CLIENT_SECRET=${DEV_NODE_API_GOOGLE_CLIENT_SECRET}"
       - "NODE_ENV=production"
       - "DB_HOST_OVERRIDE=postgres-dev"
     depends_on:

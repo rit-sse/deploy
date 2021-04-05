@@ -33,6 +33,8 @@ COURSEPLANNER_DB_PASS=
 ## Commands
 Once the environment variable file is filled out, the stack is ready to deploy. 
 
+Any `docker-compose` command must be run from a folder with a `docker-compose.yaml` file.
+
 - `docker-compose up -d` - Pull any missing docker images and create all containers. Run this for initial start-up as well as any time the configuration changes to apply the configuration.
 - `docker-compose pull` - Update any containers with newer images available. This will not restart the containers, you will have to run `docker-compose up -d` for that.
 

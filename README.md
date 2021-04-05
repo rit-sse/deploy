@@ -23,6 +23,8 @@ To generate a strong `WATCHTOWER_HTTP_API_TOKEN`, run `openssl rand -hex 16`.
 
 User content is available at `https://<BASE_DOMAIN>/~<USERNAME>/`. Content is served from the user's `public_html` folder. Should an `index.html` file be available, it will be provided as the folder index. Otherwise, a listing of all files in the directory will be shown. Currently there is no way to disable this but that will likely change in the future.
 
+To ensure the `public_html` folder is created automatically, ensure the folder exists within `/etc/skel`. This will ensure the folder is created for each user when their account is created.
+
 ## Environment Variables
 Environment variables are discovered from a `.env` file. A sample `.env` file is provided below.
 ```

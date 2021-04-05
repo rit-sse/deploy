@@ -270,6 +270,30 @@ services:
     networks:
       - traefik
 
+  pubwebs-dev:
+    image: galenguyer/pubwebs:latest
+    container_name: pubwebs-dev
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pubwebs-dev.rule=(Host(`${DEV_DOMAIN}`) && PathPrefix(`/~`))"
+      - "traefik.http.routers.pubwebs-dev.entrypoints=https"
+      - "traefik.http.routers.pubwebs-dev.service=pubwebs-dev"
+      - "traefik.http.routers.pubwebs-dev.tls=true"
+      - "traefik.http.routers.pubwebs-dev.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.pubwebs-dev.middlewares=compress,secure"
+      - "traefik.http.routers.pubwebs-dev-insecure.rule=(Host(`${DEV_DOMAIN}`) && PathPrefix(`/~`))"
+      - "traefik.http.routers.pubwebs-dev-insecure.entrypoints=http"
+      - "traefik.http.routers.pubwebs-dev-insecure.middlewares=tohttps"
+      - "traefik.http.services.pubwebs-dev.loadbalancer.server.port=80"
+    environment:
+      - 'API=http://node-api-dev:3000'
+    depends_on:
+      - traefik
+      - node-api-dev
+    networks:
+      - traefik
+
   postgres-dev:
     image: postgres:13.2-alpine
     container_name: postgres-dev

@@ -286,13 +286,15 @@ services:
       - "traefik.http.routers.pubwebs-dev-insecure.entrypoints=http"
       - "traefik.http.routers.pubwebs-dev-insecure.middlewares=tohttps"
       - "traefik.http.services.pubwebs-dev.loadbalancer.server.port=80"
-    environment:
-      - 'API=http://node-api-dev:3000'
     depends_on:
       - traefik
-      - node-api-dev
     networks:
       - traefik
+    volumes:
+      - type: bind
+        source: /home
+        target: /home
+        read_only: true
 
   postgres-dev:
     image: postgres:13.2-alpine

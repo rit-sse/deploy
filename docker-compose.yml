@@ -185,7 +185,7 @@ services:
         read_only: true
 
   quotes:
-    image: docker.galenguyer.com/rit-sse/quotes:latest
+    image: cr.galenguyer.com/rit-sse/quotes:latest
     container_name: quotes
     restart: unless-stopped
     environment:

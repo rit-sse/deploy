@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   traefik:
-    image: traefik:2.4.5
+    image: traefik:latest
     container_name: traefik
     restart: always
     command:
@@ -140,13 +140,13 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.go.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/go/{id:.+}`))"
+      - "traefik.http.routers.go.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/go/{.+}`))"
       - "traefik.http.routers.go.entrypoints=https"
       - "traefik.http.routers.go.service=go"
       - "traefik.http.routers.go.tls=true"
       - "traefik.http.routers.go.tls.certresolver=letsencrypt"
       - "traefik.http.routers.go.middlewares=compress,secure"
-      - "traefik.http.routers.go-insecure.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/go/{id:.+}`))"
+      - "traefik.http.routers.go-insecure.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/go/{.+}`))"
       - "traefik.http.routers.go-insecure.entrypoints=http"
       - "traefik.http.routers.go-insecure.middlewares=tohttps"
       - "traefik.http.services.go.loadbalancer.server.port=8000"
@@ -278,13 +278,13 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.go-dev.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/go/{id:.+}`))"
+      - "traefik.http.routers.go-dev.rule=(Host(`${DEV_DOMAIN}`) && PathPrefix(`/go/{id:.+}`))"
       - "traefik.http.routers.go-dev.entrypoints=https"
       - "traefik.http.routers.go-dev.service=go-dev"
       - "traefik.http.routers.go-dev.tls=true"
       - "traefik.http.routers.go-dev.tls.certresolver=letsencrypt"
       - "traefik.http.routers.go-dev.middlewares=compress,secure"
-      - "traefik.http.routers.go-dev-insecure.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/go/{id:.+}`))"
+      - "traefik.http.routers.go-dev-insecure.rule=(Host(`${DEV_DOMAIN}`) && PathPrefix(`/go/{id:.+}`))"
       - "traefik.http.routers.go-dev-insecure.entrypoints=http"
       - "traefik.http.routers.go-dev-insecure.middlewares=tohttps"
       - "traefik.http.services.go-dev.loadbalancer.server.port=8000"

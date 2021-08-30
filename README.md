@@ -18,6 +18,9 @@ The documentation on [containrrr.dev/watchtower/](https://containrrr.dev/watchto
 
 To generate a strong `WATCHTOWER_HTTP_API_TOKEN`, run `openssl rand -hex 16`.
 
+## PostgreSQL
+Our current database is postgres. Do NOT add a port bind to the postgres container unless you absolutely know what you are doing. If done incorrectly, this will expose our database to the internet. Our database currently does not have a password. It is global read-write without any credentials. Setting up a port bind on the container will allow anyone with the url to modify our database. Again, do *NOT* do this.
+
 ## pubwebs
 [pubwebs](https://github.com/galenguyer/pubwebs) provides web hosting for each user account. It mounts the `/home` folder as a read-only filesystem so in nearly impossible event a static webserver is compromised, no data can be written to the host system. There is no support for PHP or any type of server-side scripting. All pages must be static files.
 

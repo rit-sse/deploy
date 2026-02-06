@@ -2,7 +2,9 @@
 Deploy Configuration for the SSE Website
 
 ## Traefik
-Traefik is a reverse proxy that handles SSL and routing across Docker containers. Documentation for Traefik can be found [here](https://doc.traefik.io/traefik/).
+Traefik is a reverse proxy that handles SSL and routing across Docker containers. 
+
+Documentation for Traefik can be found [here](https://doc.traefik.io/traefik/).
 
 <!-- (commented out because the web dashboard is disabled now)
 ### HTTP Basic Authentication
@@ -10,21 +12,27 @@ Traefik uses htpasswd files for basic authentication. The `htpasswd` utility is 
 -->
 
 ## Watchtower
-[Watchtower](https://github.com/containrrr/watchtower/) is used to fetch new versions of a container when CI updates them. 
+[Watchtower](https://github.com/nicholas-fedor/watchtower/) is used to fetch new images for a container. 
 
-To run updates, run `curl -sSL -H "Authorization: Bearer <WATCHTOWER_HTTP_API_TOKEN>" <BASE_DOMAIN>/watchtower/v1/update`, substituting `<WATCHTOWER_HTTP_API_TOKEN>` and `<BASE_DOMAIN>` with the appropriate values from the `.env` file.
+To fetch Watchtower metrics, run 
+```sh
+curl -sSL -H "Authorization: Bearer $WATCHTOWER_HTTP_API_TOKEN" $BASE_DOMAIN/watchtower/v1/stats
+```
+substituting `$WATCHTOWER_HTTP_API_TOKEN` and `$BASE_DOMAIN` with the appropriate values from the `.env` file.
 
-The documentation on [containrrr.dev/watchtower/](https://containrrr.dev/watchtower/) is out of date. Make sure you refer to the docs folder in the GitHub repository or the help command (accessible with `docker run -it --rm containrrr/watchtower watchtower -h`) for the latest documentation.
+Watchtower will also push notifications to a Discord webhook, giving you information on Watchtower runs and other Watchtower events via Discord messages. 
 
-To generate a strong `WATCHTOWER_HTTP_API_TOKEN`, run `openssl rand -hex 16`.
+Further Watchtower documentation can be found on [watchtower.nickfedor.com](http://watchtower.nickfedor.com/)
+
+To generate a strong `$WATCHTOWER_HTTP_API_TOKEN`, run `openssl rand -hex 16`.
 
 ## PostgreSQL
-Our current database is postgres. Do NOT add a port bind to the postgres container unless you absolutely know what you are doing. If done incorrectly, this will expose our database to the internet. Our database currently does not have a password. It is global read-write without any credentials. Setting up a port bind on the container will allow anyone with the url to modify our database. Again, do *NOT* do this.
+Our current database is PostgreSQL. When doing a port bind, please use `127.0.0.1` to expose it interally. If done incorrectly, this will expose our database to the internet. Our database currently does not have a password. It is global read-write without any credentials. Setting up a port bind on the container will allow anyone with the url to modify our database. 
 
 ## pubwebs
 [pubwebs](https://github.com/galenguyer/pubwebs) provides web hosting for each user account. It mounts the `/home` folder as a read-only filesystem so in nearly impossible event a static webserver is compromised, no data can be written to the host system. There is no support for PHP or any type of server-side scripting. All pages must be static files.
 
-User content is available at `https://<BASE_DOMAIN>/~<USERNAME>/`. Content is served from the user's `public_html` folder. Should an `index.html` file be available, it will be provided as the folder index. Otherwise, a listing of all files in the directory will be shown. Currently there is no way to disable this but that will likely change in the future.
+User content is available at `https://$BASE_DOMAIN/~$USERNAME/`. Content is served from the user's `public_html` folder. Should an `index.html` file be available, it will be provided as the folder index. Otherwise, a listing of all files in the directory will be shown. Currently there is no way to disable this but that will likely change in the future.
 
 To ensure the `public_html` folder is created automatically, ensure the folder exists within `/etc/skel`. This will ensure the folder is created for each user when their account is created.
 

@@ -7,5 +7,5 @@ set -x           # print commands before running them. disable by running `bash 
 DATE="$(date +%Y-%m-%d)"
 
 mkdir -p ./backups/
-docker exec -i postgres pg_dump -U postgres > "./backups/postgres-$DATE.sql"
-docker exec -i postgres-dev pg_dump -U postgres > "./backups/postgres-dev-$DATE.sql"
+docker exec -i postgres pg_dump -U postgres --dbname ssequel > "./backups/postgres-$DATE.sql"
+# docker exec -i postgres-dev pg_dump -U postgres > "./backups/postgres-dev-$DATE.sql"

@@ -1,5 +1,3 @@
-version: "3.3"
-
 services:
   traefik:
     image: traefik:latest
@@ -56,105 +54,33 @@ services:
       - type: volume
         source: traefik
         target: /traefik
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "15M"
+        max-file: "3"
 
-  watchtower:
-    image: containrrr/watchtower:1.2.1
-    container_name: watchtower
-    command:
-     - "--http-api-update"
-    environment:
-      - "WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN}"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.middlewares.watchtower.stripprefix.prefixes=/watchtower"
-      - "traefik.http.routers.watchtower.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/watchtower`))"
-      - "traefik.http.routers.watchtower.entrypoints=https"
-      - "traefik.http.routers.watchtower.service=watchtower"
-      - "traefik.http.routers.watchtower.tls=true"
-      - "traefik.http.routers.watchtower.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.watchtower.middlewares=watchtower"
-      - "traefik.http.routers.watchtower-insecure.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/watchtower`))"
-      - "traefik.http.routers.watchtower-insecure.entrypoints=http"
-      - "traefik.http.routers.watchtower-insecure.middlewares=tohttps"
-      - "traefik.http.services.watchtower.loadbalancer.server.port=8080"
-      - "com.centurylinklabs.watchtower.enable=false"
-    networks:
-      - traefik
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /etc/timezone:/etc/timezone:ro
-
-  onerepo:
-    image: ritsse/onerepo:latest
-    container_name: onerepo
+  website:
+    build: https://github.com/rit-sse/WebsiteTheSSEquel.git#main:next
+    container_name: website
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.onerepo.rule=Host(`${BASE_DOMAIN}`)"
-      - "traefik.http.routers.onerepo.entrypoints=https"
-      - "traefik.http.routers.onerepo.service=onerepo"
-      - "traefik.http.routers.onerepo.tls=true"
-      - "traefik.http.routers.onerepo.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.onerepo.middlewares=compress,secure"
-      - "traefik.http.routers.onerepo-insecure.rule=Host(`${BASE_DOMAIN}`)"
-      - "traefik.http.routers.onerepo-insecure.entrypoints=http"
-      - "traefik.http.routers.onerepo-insecure.middlewares=tohttps"
-      - "traefik.http.services.onerepo.loadbalancer.server.port=80"
-    depends_on:
-      - traefik
-      - node-api
-    networks:
-      - traefik
-
-  node-api:
-    image: ritsse/node-api:latest
-    container_name: node-api
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.node-api.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/api/v2`))"
-      - "traefik.http.routers.node-api.entrypoints=https"
-      - "traefik.http.routers.node-api.service=node-api"
-      - "traefik.http.routers.node-api.tls=true"
-      - "traefik.http.routers.node-api.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.node-api.middlewares=compress,secure"
-      - "traefik.http.routers.node-api-insecure.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/api/v2`))"
-      - "traefik.http.routers.node-api-insecure.entrypoints=http"
-      - "traefik.http.routers.node-api-insecure.middlewares=tohttps"
-      - "traefik.http.services.node-api.loadbalancer.server.port=3000"
-    environment:
-      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
-      - "GOOGLE_CLIENT_ID=${NODE_API_GOOGLE_CLIENT_ID}"
-      - "GOOGLE_CLIENT_SECRET=${NODE_API_GOOGLE_CLIENT_SECRET}"
-      - "NODE_ENV=production"
-      - "DB_HOST_OVERRIDE=postgres"
+      - "traefik.http.routers.website.rule=Host(`${BASE_DOMAIN}`)"
+      - "traefik.http.routers.website.entrypoints=https"
+      - "traefik.http.routers.website.service=website"
+      - "traefik.http.routers.website.tls=true"
+      - "traefik.http.routers.website.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.website.middlewares=compress,secure"
+      - "traefik.http.routers.website-insecure.rule=Host(`${BASE_DOMAIN}`)"
+      - "traefik.http.routers.website-insecure.entrypoints=http"
+      - "traefik.http.routers.website-insecure.middlewares=tohttps"
+      - "traefik.http.services.website.loadbalancer.server.port=3000"
+    env_file:
+      .env
     depends_on:
       - traefik
       - postgres
-    networks:
-      - traefik
-
-  go:
-    image: ritsse/go:dev
-    container_name: go
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.go.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/go/{.+}`))"
-      - "traefik.http.routers.go.entrypoints=https"
-      - "traefik.http.routers.go.service=go"
-      - "traefik.http.routers.go.tls=true"
-      - "traefik.http.routers.go.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.go.middlewares=compress,secure"
-      - "traefik.http.routers.go-insecure.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/go/{.+}`))"
-      - "traefik.http.routers.go-insecure.entrypoints=http"
-      - "traefik.http.routers.go-insecure.middlewares=tohttps"
-      - "traefik.http.services.go.loadbalancer.server.port=8000"
-    environment:
-      - 'API=http://node-api:3000'
-    depends_on:
-      - traefik
-      - node-api
     networks:
       - traefik
 
@@ -184,34 +110,15 @@ services:
         target: /home
         read_only: true
 
-  quotes:
-    image: cr.galenguyer.com/rit-sse/quotes:latest
-    container_name: quotes
-    restart: unless-stopped
-    environment:
-      - "SQLALCHEMY_DATABASE_URI=postgresql://postgres:${POSTGRES_PASSWORD}@postgres/postgres"
-      - "SERVER_NAME=quotes.rit-sse.dev"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.quotes.rule=Host(`quotes.${DEV_DOMAIN}`)"
-      - "traefik.http.routers.quotes.entrypoints=https"
-      - "traefik.http.routers.quotes.service=quotes"
-      - "traefik.http.routers.quotes.tls=true"
-      - "traefik.http.routers.quotes.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.quotes.middlewares=compress,secure"
-      - "traefik.http.routers.quotes-insecure.rule=Host(`quotes.${DEV_DOMAIN}`)"
-      - "traefik.http.routers.quotes-insecure.entrypoints=http"
-      - "traefik.http.routers.quotes-insecure.middlewares=tohttps"
-      - "traefik.http.services.quotes.loadbalancer.server.port=5000"
-    networks:
-      - traefik
-
   postgres:
-    image: postgres:13.2-alpine
+    image: postgres:17
+    ports:
+      - "127.0.0.1:5432:5432"
     container_name: postgres
     restart: unless-stopped
     environment:
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
+      - "POSTGRES_DB=ssequel"
     labels:
       - "traefik.enable=false"
       - "com.centurylinklabs.watchtower.enable=false"
@@ -222,121 +129,35 @@ services:
         source: postgres
         target: /var/lib/postgresql/data
 
-  onerepo-dev:
-    image: ritsse/onerepo:dev-latest
-    container_name: onerepo-dev
-    restart: unless-stopped
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: watchtower
+    # command:
+     # - "--http-api-update"
+    environment:
+      - "WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN}"
+      - "WATCHTOWER_SCHEDULE=0 0 1 * * 2"
+      - "WATCHTOWER_HTTP_API_METRICS=true"
+      - "WATCHTOWER_NOTIFICATION_URL=${DISCORD_URL}"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.onerepo-dev.rule=Host(`${DEV_DOMAIN}`)"
-      - "traefik.http.routers.onerepo-dev.entrypoints=https"
-      - "traefik.http.routers.onerepo-dev.service=onerepo-dev"
-      - "traefik.http.routers.onerepo-dev.tls=true"
-      - "traefik.http.routers.onerepo-dev.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.onerepo-dev.middlewares=compress,secure"
-      - "traefik.http.routers.onerepo-dev-insecure.rule=Host(`${DEV_DOMAIN}`)"
-      - "traefik.http.routers.onerepo-dev-insecure.entrypoints=http"
-      - "traefik.http.routers.onerepo-dev-insecure.middlewares=tohttps"
-      - "traefik.http.services.onerepo-dev.loadbalancer.server.port=80"
-    depends_on:
-      - traefik
-      - node-api-dev
-    networks:
-      - traefik
-
-  node-api-dev:
-    image: ritsse/node-api:dev-latest
-    container_name: node-api-dev
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.node-api-dev.rule=(Host(`${DEV_DOMAIN}`) && PathPrefix(`/api/v2`))"
-      - "traefik.http.routers.node-api-dev.entrypoints=https"
-      - "traefik.http.routers.node-api-dev.service=node-api-dev"
-      - "traefik.http.routers.node-api-dev.tls=true"
-      - "traefik.http.routers.node-api-dev.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.node-api-dev.middlewares=compress,secure"
-      - "traefik.http.routers.node-api-dev-insecure.rule=(Host(`${DEV_DOMAIN}`) && PathPrefix(`/api/v2`))"
-      - "traefik.http.routers.node-api-dev-insecure.entrypoints=http"
-      - "traefik.http.routers.node-api-dev-insecure.middlewares=tohttps"
-      - "traefik.http.services.node-api-dev.loadbalancer.server.port=3000"
-    environment:
-      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
-      - "GOOGLE_CLIENT_ID=${DEV_NODE_API_GOOGLE_CLIENT_ID}"
-      - "GOOGLE_CLIENT_SECRET=${DEV_NODE_API_GOOGLE_CLIENT_SECRET}"
-      - "NODE_ENV=production"
-      - "DB_HOST_OVERRIDE=postgres-dev"
-    depends_on:
-      - traefik
-      - postgres-dev
-    networks:
-      - traefik
-
-  go-dev:
-    image: ritsse/go:dev
-    container_name: go-dev
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.go-dev.rule=(Host(`${DEV_DOMAIN}`) && PathPrefix(`/go/{id:.+}`))"
-      - "traefik.http.routers.go-dev.entrypoints=https"
-      - "traefik.http.routers.go-dev.service=go-dev"
-      - "traefik.http.routers.go-dev.tls=true"
-      - "traefik.http.routers.go-dev.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.go-dev.middlewares=compress,secure"
-      - "traefik.http.routers.go-dev-insecure.rule=(Host(`${DEV_DOMAIN}`) && PathPrefix(`/go/{id:.+}`))"
-      - "traefik.http.routers.go-dev-insecure.entrypoints=http"
-      - "traefik.http.routers.go-dev-insecure.middlewares=tohttps"
-      - "traefik.http.services.go-dev.loadbalancer.server.port=8000"
-    environment:
-      - 'API=http://node-api-dev:3000'
-    depends_on:
-      - traefik
-      - node-api-dev
-    networks:
-      - traefik
-
-  postgres-dev:
-    image: postgres:13.2-alpine
-    container_name: postgres-dev
-    restart: unless-stopped
-    environment:
-      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
-    labels:
-      - "traefik.enable=false"
-      - "com.centurylinklabs.watchtower.enable=false"
+      - "traefik.http.middlewares.watchtower.stripprefix.prefixes=/watchtower"
+      - "traefik.http.routers.watchtower.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/watchtower`))"
+      - "traefik.http.routers.watchtower.entrypoints=https"
+      - "traefik.http.routers.watchtower.service=watchtower"
+      - "traefik.http.routers.watchtower.tls=true"
+      - "traefik.http.routers.watchtower.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.watchtower.middlewares=watchtower"
+      - "traefik.http.routers.watchtower-insecure.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/watchtower`))"
+      - "traefik.http.routers.watchtower-insecure.entrypoints=http"
+      - "traefik.http.routers.watchtower-insecure.middlewares=tohttps"
+      - "traefik.http.services.watchtower.loadbalancer.server.port=8080"
+      # - "com.centurylinklabs.watchtower.enable=false"
     networks:
       - traefik
     volumes:
-      - type: volume
-        source: postgres-dev
-        target: /var/lib/postgresql/data
-
-  courseplanner:
-    image: ritsse/courseplanner:latest
-    container_name: courseplanner
-    restart: unless-stopped
-    environment:
-      - "JWT_SECRET=${COURSEPLANNER_JWT_SECRET}"
-      - "GOOGLE_CLIENT_SECRET=${COURSEPLANNER_GOOGLE_CLIENT_SECRET}"
-      - "DB_USER=${COURSEPLANNER_DB_USER}"
-      - "DB_PASS=${COURSEPLANNER_DB_PASS}"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.courseplanner.rule=Host(`planyourcourses.com`)"
-      - "traefik.http.routers.courseplanner.entrypoints=https"
-      - "traefik.http.routers.courseplanner.service=courseplanner"
-      - "traefik.http.routers.courseplanner.tls=true"
-      - "traefik.http.routers.courseplanner.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.courseplanner.middlewares=compress,secure"
-      - "traefik.http.routers.courseplanner-insecure.rule=Host(`planyourcourses.com`)"
-      - "traefik.http.routers.courseplanner-insecure.entrypoints=http"
-      - "traefik.http.routers.courseplanner-insecure.middlewares=tohttps"
-      - "traefik.http.services.courseplanner.loadbalancer.server.port=8080"
-    depends_on:
-      - traefik
-    networks:
-      - traefik
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:ro
 
 networks:
   traefik:
@@ -346,4 +167,3 @@ networks:
 volumes:
   traefik:
   postgres:
-  postgres-dev:

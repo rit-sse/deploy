@@ -16,13 +16,13 @@ Traefik uses htpasswd files for basic authentication. The `htpasswd` utility is 
 
 To fetch Watchtower metrics, run 
 ```sh
-curl -sSL -H "Authorization: Bearer $WATCHTOWER_HTTP_API_TOKEN" $BASE_DOMAIN/watchtower/v1/stats
+curl -sSL -H "Authorization: Bearer $WATCHTOWER_HTTP_API_TOKEN" $BASE_DOMAIN/watchtower/v1/metrics
 ```
 substituting `$WATCHTOWER_HTTP_API_TOKEN` and `$BASE_DOMAIN` with the appropriate values from the `.env` file.
 
 Watchtower will also push notifications to a Discord webhook, giving you information on Watchtower runs and other Watchtower events via Discord messages. 
 
-Further Watchtower documentation can be found on [watchtower.nickfedor.com](http://watchtower.nickfedor.com/)
+Further Watchtower documentation can be found on [watchtower.nickfedor.com](https://watchtower.nickfedor.com/)
 
 To generate a strong `$WATCHTOWER_HTTP_API_TOKEN`, run `openssl rand -hex 16`.
 
@@ -97,4 +97,4 @@ To restore the database, run `cat dump_file.sql | docker exec -i postgres psql -
     - [docker-compose file reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)
     - [docker-compose CLI reference](https://docs.docker.com/compose/reference/overview/)
 - [traefik documentation](https://doc.traefik.io/traefik/)
-- [watchtower documentation](https://github.com/containrrr/watchtower/tree/main/docs)
+- [watchtower documentation](https://watchtower.nickfedor.com/)

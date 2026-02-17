@@ -12,7 +12,7 @@ services:
       - "--entrypoints.https.address=:443"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http"
-      - "--certificatesresolvers.letsencrypt.acme.email=tech@sse.rit.edu"
+      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/traefik/acme.json"
       - "--accesslog=true"
       - "--accesslog.filepath=/traefik/access.log"
@@ -77,7 +77,32 @@ services:
       - "traefik.http.routers.website-insecure.middlewares=tohttps"
       - "traefik.http.services.website.loadbalancer.server.port=3000"
     env_file:
-      .env
+      .env.prod
+    depends_on:
+      - traefik
+      - postgres
+    networks:
+      - traefik
+
+  website-dev:
+    build: https://github.com/rit-sse/WebsiteTheSSEquel.git#main:next
+    container_name: website-dev
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.website-dev.rule=Host(`${DEV_DOMAIN}`)"
+      - "traefik.http.routers.website-dev.entrypoints=https"
+      - "traefik.http.routers.website-dev.service=website-dev"
+      - "traefik.http.routers.website-dev.tls=true"
+      - "traefik.http.routers.website-dev.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.website-dev-insecure.rule=Host(`${DEV_DOMAIN}`)"
+      - "traefik.http.routers.website-dev-insecure.service=website-dev"
+      - "traefik.http.routers.website-dev-insecure.entrypoints=http"
+      - "traefik.http.routers.website-dev-insecure.middlewares=tohttps"
+      - "traefik.http.services.website-dev.loadbalancer.server.port=3000"
+      - "traefik.http.routers.website-dev.middlewares=dev-auth,dev-errors,compress,secure"
+    env_file:
+      .env.dev
     depends_on:
       - traefik
       - postgres
@@ -132,8 +157,8 @@ services:
   watchtower:
     image: nickfedor/watchtower:latest
     container_name: watchtower
-    # command:
-     # - "--http-api-update"
+    command:
+      - "--http-api-update"
     environment:
       - "WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN}"
       - "WATCHTOWER_SCHEDULE=0 0 1 * * 2"
@@ -152,12 +177,43 @@ services:
       - "traefik.http.routers.watchtower-insecure.entrypoints=http"
       - "traefik.http.routers.watchtower-insecure.middlewares=tohttps"
       - "traefik.http.services.watchtower.loadbalancer.server.port=8080"
-      # - "com.centurylinklabs.watchtower.enable=false"
+      - "com.centurylinklabs.watchtower.enable=false"
     networks:
       - traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/timezone:/etc/timezone:ro
+
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
+    container_name: oauth2-proxy
+    restart: unless-stopped
+    #env_file:
+      #.env.dev
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oauth2.rule=Host(`${DEV_DOMAIN}`)"
+      - "traefik.http.routers.oauth2.entrypoints=https"
+      - "traefik.http.routers.oauth2.tls=true"
+      - "traefik.http.routers.oauth2.service=oauth2-proxy"
+      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+    environment:
+      - "OAUTH2_PROXY_PROVIDER=github"
+      - "OAUTH2_PROXY_CLIENT_ID=${OAUTH2_PROXY_CLIENT_ID}"
+      - "OAUTH2_PROXY_CLIENT_SECRET=${OAUTH2_PROXY_CLIENT_SECRET}"
+      - "OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET}"
+      - "OAUTH2_PROXY_GITHUB_ORG=${OAUTH2_PROXY_GITHUB_ORG}"
+      - "OAUTH2_PROXY_GITHUB_TEAM=${OAUTH2_PROXY_GITHUB_TEAM}"
+      - "OAUTH2_PROXY_EMAIL_DOMAINS=*"
+      - "OAUTH2_PROXY_SCOPE=read:org user:email"
+      - "OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180"
+      - "OAUTH2_PROXY_UPSTREAMS=http://website-dev:3000"
+      - "OAUTH2_PROXY_PROXY_PREFIX=/oauth2"
+      - "OAUTH2_PROXY_REVERSE_PROXY=true"
+      - "OAUTH2_PROXY_SHOW_DEBUG_ON_ERROR=false"
+      - "OAUTH2_PROXY_CUSTOM_ERROR_PAGE=/oauth2/sign_in"
+    networks:
+      - traefik
 
 networks:
   traefik:

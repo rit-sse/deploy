@@ -1,5 +1,8 @@
-# Configuration file
+# env files
 .env
+.env.prod
+.env.dev
+.s3creds
 traefik/*.auth
 
 # Postgres backup folder

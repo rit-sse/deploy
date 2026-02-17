@@ -29,3 +29,7 @@ do
     fi
     file_count=$(find ./backups -type f | wc -l) # update the file count
 done
+<<<<<<< HEAD
+=======
+# docker exec -i postgres-dev pg_dump -U postgres > "./backups/postgres-dev-$DATE.sql"
+>>>>>>> 5bb9db1 (add dev site deployment)

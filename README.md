@@ -37,26 +37,54 @@ User content is available at `https://$BASE_DOMAIN/~$USERNAME/`. Content is serv
 To ensure the `public_html` folder is created automatically, ensure the folder exists within `/etc/skel`. This will ensure the folder is created for each user when their account is created.
 
 ## Environment Variables
-Environment variables are discovered from a `.env` file. A sample `.env` file is provided below.
+Environment variables are discovered from 3 files: `.env`, `.env.prod`,`.env.dev`
+Sample files are provided below. 
 ```
+# .env
 BASE_DOMAIN=
+DEV_DOMAIN=
+
+TRAEFIK_EMAIL=
 
 POSTGRES_PASSWORD=
-DATABASE_URL=
 
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-NEXTAUTH_URL=
-NEXTAUTH_SECRET=
-
-INTERNAL_API_URL=
-SESSION_COOKIE_NAME=
-
-GCAL_CLIENT_EMAIL=
-GCAL_PRIVATE_KEY=
+OAUTH2_PROXY_CLIENT_ID=
+OAUTH2_PROXY_CLIENT_SECRET=
+OAUTH2_PROXY_COOKIE_SECRET=
+OAUTH2_PROXY_GITHUB_ORG=
+OAUTH2_PROXY_GITHUB_TEAM=
 
 WATCHTOWER_HTTP_API_TOKEN=
 DISCORD_URL=
+```
+
+```
+# .env.prod/.env.dev
+NODE_ENV=""
+NEXT_PUBLIC_ENV=""
+
+DATABASE_URL=""
+
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+NEXTAUTH_URL=""
+NEXTAUTH_SECRET=""
+
+INTERNAL_API_URL=""
+SESSION_COOKIE_NAME=""
+
+GCAL_CLIENT_EMAIL=""
+GCAL_PRIVATE_KEY=""
+GCAL_CAL_ID=""
+
+AWS_S3_BUCKET_NAME=""
+AWS_S3_REGION=""
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+# Public versions for client-side URL construction
+NEXT_PUBLIC_AWS_S3_BUCKET_NAME=""
+NEXT_PUBLIC_AWS_S3_REGION=""
 
 EMAIL_PROVIDER= # can do gmail or smtp
 SMTP_HOST=

@@ -5,20 +5,21 @@ set -o pipefail  # don't hide errors within pipes
 # set -x           # print commands before running them. disable by running `bash +x script.sh`
 
 DATE="$(date +%Y-%m-%d_%H-%M-%S)"
+BACKUP_DIR="/root/deploy/backups/"
 
-mkdir -p ./backups/
-docker exec -i postgres pg_dump -U postgres --dbname ssequel > "./backups/postgres-$DATE.sql"
+mkdir -p "$BACKUP_DIR"
+docker exec -i postgres pg_dump -U postgres --dbname ssequel > "$BACKUP_DIR/postgres-$DATE.sql"
 
 # Set the maximum number of files allowed
 max_files=10
 
 # Get the number of files in the directory
-file_count=$(find ./backups -type f | wc -l)
+file_count=$(find "$BACKUP_DIR" -type f | wc -l)
 
 # Check if the number of files exceeds the limit
 while [ $file_count -gt $max_files ]
 do
-    oldest_file=$(find ./backups -type f -printf '%T+ %p\n' | sort | head -n 1 | awk '{print $2}')
+    oldest_file=$(find "$BACKUP_DIR" -type f -printf '%T+ %p\n' | sort | head -n 1 | awk '{print $2}')
 
     # Delete the oldest file
     if [ -f "$oldest_file" ]; then
@@ -27,7 +28,7 @@ do
     else
       echo "No files found in the directory."
     fi
-    file_count=$(find ./backups -type f | wc -l) # update the file count
+    file_count=$(find "$BACKUP_DIR" -type f | wc -l) # update the file count
 done
 <<<<<<< HEAD
 =======

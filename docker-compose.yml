@@ -61,7 +61,7 @@ services:
         max-file: "3"
 
   website:
-    build: https://github.com/rit-sse/WebsiteTheSSEquel.git#main:next
+    image: ghcr.io/rit-sse/sse-web:prod
     container_name: website
     restart: unless-stopped
     labels:
@@ -85,7 +85,7 @@ services:
       - traefik
 
   website-dev:
-    build: https://github.com/rit-sse/WebsiteTheSSEquel.git#main:next
+    image: ghcr.io/rit-sse/sse-web:dev
     container_name: website-dev
     restart: unless-stopped
     labels:
@@ -164,6 +164,7 @@ services:
       - "WATCHTOWER_SCHEDULE=0 0 1 * * 2"
       - "WATCHTOWER_HTTP_API_METRICS=true"
       - "WATCHTOWER_NOTIFICATION_URL=${DISCORD_URL}"
+      - "WATCHTOWER_CLEANUP=true"
     labels:
       - "traefik.enable=true"
       - "traefik.http.middlewares.watchtower.stripprefix.prefixes=/watchtower"

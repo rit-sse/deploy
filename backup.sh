@@ -5,7 +5,7 @@ set -o pipefail  # don't hide errors within pipes
 # set -x           # print commands before running them. disable by running `bash +x script.sh`
 
 DATE="$(date +%Y-%m-%d_%H-%M-%S)"
-BACKUP_DIR="/root/deploy/backups/"
+BACKUP_DIR="$(dirname $0)/backups"
 
 mkdir -p "$BACKUP_DIR"
 docker exec -i postgres pg_dump -U postgres --dbname ssequel > "$BACKUP_DIR/postgres-$DATE.sql"
@@ -30,7 +30,4 @@ do
     fi
     file_count=$(find "$BACKUP_DIR" -type f | wc -l) # update the file count
 done
-<<<<<<< HEAD
-=======
 # docker exec -i postgres-dev pg_dump -U postgres > "./backups/postgres-dev-$DATE.sql"
->>>>>>> 5bb9db1 (add dev site deployment)

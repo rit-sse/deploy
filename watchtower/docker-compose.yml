@@ -1,0 +1,31 @@
+services:
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: watchtower
+    command:
+      - "--http-api-update"
+    environment:
+      - "WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN}"
+      - "WATCHTOWER_SCHEDULE=0 0 1 * * 2"
+      - "WATCHTOWER_HTTP_API_METRICS=true"
+      - "WATCHTOWER_NOTIFICATION_URL=${DISCORD_URL}"
+      - "WATCHTOWER_CLEANUP=true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.watchtower.stripprefix.prefixes=/watchtower"
+      - "traefik.http.routers.watchtower.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/watchtower`))"
+      - "traefik.http.routers.watchtower.entrypoints=https"
+      - "traefik.http.routers.watchtower.service=watchtower"
+      - "traefik.http.routers.watchtower.tls=true"
+      - "traefik.http.routers.watchtower.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.watchtower.middlewares=watchtower"
+      - "traefik.http.routers.watchtower-insecure.rule=(Host(`${BASE_DOMAIN}`) && PathPrefix(`/watchtower`))"
+      - "traefik.http.routers.watchtower-insecure.entrypoints=http"
+      - "traefik.http.routers.watchtower-insecure.middlewares=tohttps"
+      - "traefik.http.services.watchtower.loadbalancer.server.port=8080"
+      - "com.centurylinklabs.watchtower.enable=false"
+    networks:
+      - traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:ro

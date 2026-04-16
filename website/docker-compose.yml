@@ -3,20 +3,8 @@ services:
     image: ghcr.io/rit-sse/sse-web:prod
     container_name: website
     restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.website.rule=Host(`${BASE_DOMAIN}`)"
-      - "traefik.http.routers.website.entrypoints=https"
-      - "traefik.http.routers.website.service=website"
-      - "traefik.http.routers.website.tls=true"
-      - "traefik.http.routers.website.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.website.middlewares=compress,secure-headers"
-      - "traefik.http.routers.website-insecure.rule=Host(`${BASE_DOMAIN}`)"
-      - "traefik.http.routers.website-insecure.entrypoints=http"
-      - "traefik.http.routers.website-insecure.middlewares=tohttps"
-      - "traefik.http.services.website.loadbalancer.server.port=3000"
-    networks:
-      - traefik
+    ports:
+      - "3000:3000"
     env_file:
       .env.prod
     depends_on:
@@ -26,21 +14,8 @@ services:
     image: ghcr.io/rit-sse/sse-web:dev
     container_name: website-dev
     restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.website-dev.rule=Host(`${DEV_DOMAIN}`)"
-      - "traefik.http.routers.website-dev.entrypoints=https"
-      - "traefik.http.routers.website-dev.service=website-dev"
-      - "traefik.http.routers.website-dev.tls=true"
-      - "traefik.http.routers.website-dev.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.website-dev-insecure.rule=Host(`${DEV_DOMAIN}`)"
-      - "traefik.http.routers.website-dev-insecure.service=website-dev"
-      - "traefik.http.routers.website-dev-insecure.entrypoints=http"
-      - "traefik.http.routers.website-dev-insecure.middlewares=tohttps"
-      - "traefik.http.services.website-dev.loadbalancer.server.port=3000"
-      - "traefik.http.routers.website-dev.middlewares=compress,secure-headers"
-    networks:
-      - traefik
+    ports:
+      - 3001:3000
     env_file:
       .env.dev
     depends_on:
@@ -50,13 +25,8 @@ services:
     image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
     container_name: oauth2-proxy
     restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.oauth2.rule=Host(`${DEV_DOMAIN}`)"
-      - "traefik.http.routers.oauth2.entrypoints=https"
-      - "traefik.http.routers.oauth2.tls=true"
-      - "traefik.http.routers.oauth2.service=oauth2-proxy"
-      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+    ports:
+      - 4180:4180
     environment:
       - "OAUTH2_PROXY_PROVIDER=github"
       - "OAUTH2_PROXY_CLIENT_ID=${OAUTH2_PROXY_CLIENT_ID}"
@@ -72,8 +42,6 @@ services:
       - "OAUTH2_PROXY_REVERSE_PROXY=true"
       - "OAUTH2_PROXY_SHOW_DEBUG_ON_ERROR=false"
       - "OAUTH2_PROXY_CUSTOM_ERROR_PAGE=/oauth2/sign_in"
-    networks:
-      - traefik
 
   postgres:
     image: postgres:17
@@ -88,8 +56,5 @@ services:
       - type: volume
         source: postgres
         target: /var/lib/postgresql/data
-networks:
-  traefik: 
-    external: true
 volumes:
   postgres:

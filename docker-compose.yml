@@ -5,7 +5,7 @@ services:
     restart: always
     command:
       - "--providers.docker=true"
-      - "--providers.file.directory=/traefik/conf"
+      - "--providers.file.filename=/dynamic.yml"
       - "--providers.file.watch=true"
       - "--api"
       - "--entrypoints.http.address=:80"
@@ -13,14 +13,14 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http"
       - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_EMAIL}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/traefik/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/acme.json"
       - "--accesslog=true"
-      - "--accesslog.filepath=/traefik/access.log"
+      - "--accesslog.filepath=/logs/access.log"
       - "--accesslog.format=json"
       - "--accesslog.fields.defaultmode=keep"
       - "--accesslog.fields.headers.defaultmode=keep"
       - "--log.level=INFO"
-      - "--log.filePath=/traefik/traefik.log"
+      - "--log.filePath=/logs/traefik.log"
     labels:
       - "traefik.enable=true"
       - "traefik.http.middlewares.compress.compress=true"
@@ -35,7 +35,7 @@ services:
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,OPTIONS,PUT"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.middlewares.tohttps.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.adminauth.basicauth.usersfile=/traefik/conf/admin.auth"
+      #- "traefik.http.middlewares.adminauth.basicauth.usersfile=/traefik/conf/admin.auth"
       - "traefik.http.services.traefik.loadbalancer.passhostheader=true"
     ports:
       - "80:80"
@@ -43,17 +43,16 @@ services:
     networks:
       - traefik
     volumes:
-      - type: bind
-        source: /var/run/docker.sock
-        target: /var/run/docker.sock
-        read_only: true
-      - type: bind
-        source: ./traefik
-        target: /traefik/conf
-        read_only: true
-      - type: volume
-        source: traefik
-        target: /traefik
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+      - "./traefik/data/acme.json:/acme.json"
+      - "./traefik/logs:/logs"
+      - "./traefik/conf/dynamic.yml:/dynamic.yml:ro"
+        # read_only: true
+      
+      #- type: volume
+        #source: traefik
+        #target: /traefik
     logging:
       driver: "json-file"
       options:

@@ -68,6 +68,12 @@ SMTP_SECURE=
 SMTP_USER= # defaults to 587
 SMTP_PASS= # set to true for port 465
 SMTP_FROM= # defaults to SMTP_USER
+
+# for .env.dev
+STAGING_PROXY_AUTH=
+STAGING_PROXY_AUTH_SECRET=
+GITHUB_APP_ID=
+GITHUB_APP_PRIVATE_KEY=
 ```
 
 ### Watchtower
